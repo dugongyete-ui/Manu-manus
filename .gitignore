@@ -119,5 +119,12 @@ coverage/
 docker-compose-test.yml
 mcp.json
 
+# Replit
+.pythonlibs/
+.upm/
+.config/
+.cache/
+dump.rdb
+
 # Frontend whitelist
 !frontend/src/lib/
