@@ -1,53 +1,92 @@
-# AI Manus - Replit Setup
+# AI Manus - AI Agent System
 
 ## Overview
-AI Manus is a general-purpose AI Agent system that supports running tools and operations in a sandbox environment. This project was cloned from GitHub and adapted to run on Replit.
+AI Manus adalah sistem AI Agent general-purpose yang mendukung menjalankan berbagai tools dan operasi. Proyek ini di-clone dari GitHub (simpleyyt/ai-manus) dan diadaptasi untuk berjalan sepenuhnya di Replit tanpa Docker.
+
+Fitur utama:
+- Terminal, Browser, File, Web Search, dan messaging tools
+- Sandbox environment per task (Docker-based, perlu dikonfigurasi terpisah)
+- Session history via PostgreSQL/Redis
+- Upload/download file
+- Multibahasa (Chinese & English)
+- Autentikasi pengguna (local/password/none)
+- Integrasi MCP (Model Context Protocol)
 
 ## Architecture
-- **Frontend**: Vue.js 3 + Vite (port 5000)
-- **Backend**: Python FastAPI (port 8000)
-- **Database**: MongoDB (external - MongoDB Atlas)
-- **Cache**: Redis (local via Nix)
-- **Sandbox**: Docker-based sandbox (requires external sandbox or Docker host)
+- **Frontend**: Vue.js 3 + Vite + TypeScript + Tailwind CSS (port 5000)
+- **Backend**: Python FastAPI + Uvicorn (port 8000)
+- **Database**: PostgreSQL (Replit built-in, via DATABASE_URL)
+- **Cache/Queue**: Redis (local, port 6379)
+- **LLM**: OpenAI-compatible API (configurable)
+- **Sandbox**: Docker-based (requires external setup, not available on Replit)
 
 ## Project Structure
 ```
-frontend/     - Vue.js frontend application
-backend/      - Python FastAPI backend
-sandbox/      - Sandbox API (Docker-based, not used locally on Replit)
-mockserver/   - Mock LLM server for testing
-docs/         - Documentation
-start.sh      - Startup script for Replit
+frontend/           - Vue.js frontend application
+  src/
+    api/            - API client (auth, agent, file)
+    components/     - Vue components (ChatBox, VNCViewer, FilePanel, etc.)
+    views/          - Pages (Login, Chat, etc.)
+    stores/         - State management
+    i18n/           - Internationalization (CN/EN)
+  vite.config.ts    - Vite config (port 5000, proxy to backend)
+
+backend/            - Python FastAPI backend
+  app/
+    core/           - Config settings
+    domain/         - Domain models & services (Agent, Session, Auth)
+    infrastructure/ - Storage (PostgreSQL, Redis), LLM, Search, Sandbox
+    interfaces/     - API routes, schemas, dependencies
+    application/    - Business services (Auth, Agent, File, Token)
+
+sandbox/            - Sandbox API (Docker-based, not used on Replit)
+mockserver/         - Mock LLM server for testing
+docs/               - Documentation
+
+start.sh            - Startup script (Redis + Backend + Frontend)
+install.sh          - Auto-install all dependencies
 ```
 
-## Required Secrets/Environment Variables
-- `API_KEY` - LLM API key (OpenAI, DeepSeek, etc.)
-- `MONGODB_URI` - MongoDB Atlas connection string
-- `JWT_SECRET_KEY` - JWT secret for authentication
-
-## Non-Secret Environment Variables (already configured)
-- `API_BASE` - LLM API base URL (default: https://api.openai.com/v1)
-- `MODEL_NAME` - LLM model name (default: gpt-4o)
-- `AUTH_PROVIDER` - Authentication mode (set to "local")
-- `LOCAL_AUTH_EMAIL` - Local admin email (admin@example.com)
-- `LOCAL_AUTH_PASSWORD` - Local admin password (admin)
-- `REDIS_HOST` - Redis host (localhost)
-- `SEARCH_PROVIDER` - Search engine (bing)
-
 ## How to Run
-The `start.sh` script runs:
-1. Redis server (daemonized)
-2. Backend API on port 8000
-3. Frontend dev server on port 5000 (with proxy to backend)
+1. Run `bash install.sh` to install all dependencies
+2. Click "Run" or use `bash start.sh` to start:
+   - Redis server (daemonized)
+   - Backend API on port 8000
+   - Frontend dev server on port 5000 (with proxy to backend)
 
 ## Login
-- Auth mode: local (no registration needed)
+- Auth mode: `local` (no registration needed)
 - Email: admin@example.com
-- Password: admin
+- Password: admin123
+
+## Environment Variables (Configured)
+- `API_BASE` - LLM API base URL
+- `API_KEY` - LLM API key (secret)
+- `MODEL_NAME` - LLM model name
+- `AUTH_PROVIDER` - Authentication mode (local)
+- `LOCAL_AUTH_EMAIL` / `LOCAL_AUTH_PASSWORD` - Local admin credentials
+- `REDIS_HOST` / `REDIS_PORT` / `REDIS_DB` - Redis config
+- `JWT_SECRET_KEY` - JWT secret (secret)
+- `DATABASE_URL` - PostgreSQL connection (auto-configured by Replit)
+- `SEARCH_PROVIDER` - Search engine (bing)
+- `GOOGLE_SEARCH_API_KEY` / `GOOGLE_SEARCH_ENGINE_ID` - Google search (secrets)
+
+## Key Technical Decisions
+- PostgreSQL replaces MongoDB (original used MongoDB + GridFS)
+- Local file storage replaces GridFS for file uploads
+- Redis runs locally via Nix (not Docker container)
+- Frontend proxies `/api` requests to backend via Vite proxy
+- Sandbox features require Docker (not available on Replit natively)
 
 ## Recent Changes
-- 2026-02-20: Initial Replit adaptation
-  - Configured Vite to port 5000 with allowedHosts
-  - Set up Redis locally via Nix
-  - Created startup script
-  - Set environment variables for local auth mode
+- 2026-02-21: Full Replit adaptation completed
+  - Installed all Python/Node.js dependencies
+  - Fixed GridFS import error (replaced with LocalFileStorage)
+  - Created auto-install script (install.sh)
+  - PostgreSQL database created and connected
+  - Redis, Backend, Frontend all running successfully
+  - Login page functional with local auth
+
+## User Preferences
+- Language: Indonesian (Bahasa Indonesia)
+- Goal: Make this project work fully on Replit, comparable to manus.im
