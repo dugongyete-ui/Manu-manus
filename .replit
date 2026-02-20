@@ -28,3 +28,35 @@ LOG_LEVEL = "INFO"
 SANDBOX_TTL_MINUTES = "30"
 SANDBOX_NAME_PREFIX = "sandbox"
 BACKEND_URL = "http://localhost:8000"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start AI Manus"
+
+[[workflows.workflow]]
+name = "Start AI Manus"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash /home/runner/workspace/start.sh"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 6379
+externalPort = 3000
