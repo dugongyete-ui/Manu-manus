@@ -1,1 +1,30 @@
 modules = ["python-3.11", "nodejs-20"]
+
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["redis"]
+
+[userenv]
+
+[userenv.shared]
+API_BASE = "https://api.openai.com/v1"
+MODEL_NAME = "gpt-4o"
+TEMPERATURE = "0.7"
+MAX_TOKENS = "2000"
+REDIS_HOST = "localhost"
+REDIS_PORT = "6379"
+REDIS_DB = "0"
+SEARCH_PROVIDER = "bing"
+AUTH_PROVIDER = "local"
+LOCAL_AUTH_EMAIL = "admin@example.com"
+LOCAL_AUTH_PASSWORD = "admin"
+JWT_ALGORITHM = "HS256"
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES = "60"
+JWT_REFRESH_TOKEN_EXPIRE_DAYS = "7"
+LOG_LEVEL = "INFO"
+SANDBOX_TTL_MINUTES = "30"
+SANDBOX_NAME_PREFIX = "sandbox"
+BACKEND_URL = "http://localhost:8000"

@@ -18,16 +18,15 @@ export default defineConfig({
     exclude: ['lucide-vue-next'],
   },
   server: {
-    host: true,
-    port: 5173,
-    ...(process.env.BACKEND_URL && {
-      proxy: {
-        '/api': {
-          target: process.env.BACKEND_URL,
-          changeOrigin: true,
-          ws: true,
-        },
+    host: '0.0.0.0',
+    port: 5000,
+    allowedHosts: true,
+    proxy: {
+      '/api': {
+        target: process.env.BACKEND_URL || 'http://localhost:8000',
+        changeOrigin: true,
+        ws: true,
       },
-    }),
+    },
   },
 }); 
