@@ -4,7 +4,7 @@ from functools import lru_cache
 from fastapi import Request, Header, HTTPException, status, Depends, Query
 from starlette.websockets import WebSocket
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from app.infrastructure.external.file.gridfsfile import get_file_storage
+from app.infrastructure.external.file.local_file_storage import get_local_file_storage
 from app.infrastructure.external.search import get_search_engine
 from app.domain.models.user import User, UserRole
 from app.application.errors.exceptions import UnauthorizedError
@@ -23,10 +23,10 @@ from app.infrastructure.external.llm.openai_llm import OpenAILLM
 from app.infrastructure.external.sandbox.docker_sandbox import DockerSandbox
 from app.infrastructure.external.task.redis_task import RedisStreamTask
 from app.infrastructure.utils.llm_json_parser import LLMJsonParser
-from app.infrastructure.repositories.mongo_agent_repository import MongoAgentRepository
-from app.infrastructure.repositories.mongo_session_repository import MongoSessionRepository
+from app.infrastructure.repositories.pg_agent_repository import PgAgentRepository
+from app.infrastructure.repositories.pg_session_repository import PgSessionRepository
 from app.infrastructure.repositories.file_mcp_repository import FileMCPRepository
-from app.infrastructure.repositories.user_repository import MongoUserRepository
+from app.infrastructure.repositories.pg_user_repository import PgUserRepository
 
 
 # Configure logging
@@ -47,12 +47,12 @@ def get_agent_service() -> AgentService:
     
     # Create all dependencies
     llm = OpenAILLM()
-    agent_repository = MongoAgentRepository()
-    session_repository = MongoSessionRepository()
+    agent_repository = PgAgentRepository()
+    session_repository = PgSessionRepository()
     sandbox_cls = DockerSandbox
     task_cls = RedisStreamTask
     json_parser = LLMJsonParser()
-    file_storage = get_file_storage()
+    file_storage = get_local_file_storage()
     search_engine = get_search_engine()
     mcp_repository = FileMCPRepository()
     
@@ -81,7 +81,7 @@ def get_file_service() -> FileService:
     logger.info("Creating FileService instance")
     
     # Get dependencies
-    file_storage = get_file_storage()
+    file_storage = get_local_file_storage()
     token_service = get_token_service()
     
     return FileService(
@@ -101,7 +101,7 @@ def get_auth_service() -> AuthService:
     logger.info("Creating AuthService instance")
     
     # Get user repository dependency
-    user_repository = MongoUserRepository()
+    user_repository = PgUserRepository()
     
     return AuthService(
         user_repository=user_repository,

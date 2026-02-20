@@ -13,11 +13,7 @@ class Settings(BaseSettings):
     temperature: float = 0.7
     max_tokens: int = 2000
     
-    # MongoDB configuration
-    mongodb_uri: str = "mongodb://mongodb:27017"
-    mongodb_database: str = "manus"
-    mongodb_username: str | None = None
-    mongodb_password: str | None = None
+    database_url: str | None = None
     
     # Redis configuration
     redis_host: str = "redis"
@@ -71,6 +67,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"
         
     def validate(self):
         """Validate configuration settings"""

@@ -5,7 +5,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
-packages = ["redis"]
+packages = ["postgresql", "redis"]
 
 [userenv]
 
@@ -20,7 +20,7 @@ REDIS_DB = "0"
 SEARCH_PROVIDER = "bing"
 AUTH_PROVIDER = "local"
 LOCAL_AUTH_EMAIL = "admin@example.com"
-LOCAL_AUTH_PASSWORD = "admin"
+LOCAL_AUTH_PASSWORD = "admin123"
 JWT_ALGORITHM = "HS256"
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = "60"
 JWT_REFRESH_TOKEN_EXPIRE_DAYS = "7"
@@ -28,6 +28,7 @@ LOG_LEVEL = "INFO"
 SANDBOX_TTL_MINUTES = "30"
 SANDBOX_NAME_PREFIX = "sandbox"
 BACKEND_URL = "http://localhost:8000"
+JWT_SECRET_KEY = "_d2pULUsVcgiKDNlx-2bQ-99NTX6K1eDLNAmyME2S_E4VTo87vqdz7OtRXufCKCF"
 
 [workflows]
 runButton = "Project"
@@ -60,3 +61,7 @@ externalPort = 80
 [[ports]]
 localPort = 6379
 externalPort = 3000
+
+[[ports]]
+localPort = 8000
+externalPort = 8000
