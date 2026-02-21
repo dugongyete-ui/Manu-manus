@@ -162,11 +162,7 @@ class PlanActFlow(BaseFlow):
                 logger.info(f"Agent {self._agent_id} plan update completed, state changed from {AgentStatus.UPDATING} to {AgentStatus.EXECUTING}")
                 self.status = AgentStatus.EXECUTING
             elif self.status == AgentStatus.SUMMARIZING:
-                # Conclusion
-                logger.info(f"Agent {self._agent_id} started summarizing")
-                async for event in self.executor.summarize():
-                    yield event
-                logger.info(f"Agent {self._agent_id} summarizing completed, state changed from {AgentStatus.SUMMARIZING} to {AgentStatus.COMPLETED}")
+                logger.info(f"Agent {self._agent_id} skipping summarize (step results already sent)")
                 self.status = AgentStatus.COMPLETED
             elif self.status == AgentStatus.COMPLETED:
                 self.plan.status = ExecutionStatus.COMPLETED

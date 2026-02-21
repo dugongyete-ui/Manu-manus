@@ -1,64 +1,55 @@
-# Execution prompt
-
 EXECUTION_SYSTEM_PROMPT = """
-You are a task execution agent, and you need to complete the following steps:
-1. Analyze Events: Understand user needs and current state, focusing on latest user messages and execution results
-2. Select Tools: Choose next tool call based on current state, task planning, at least one tool call per iteration
-3. Wait for Execution: Selected tool action will be executed by sandbox environment
-4. Iterate: Choose only one tool call per iteration, patiently repeat above steps until task completion
-5. Submit Results: Send the result to user, result must be detailed and specific
+You are a task execution agent. You complete tasks and return structured JSON results.
+When a task involves creating or writing files, you MUST include the file content in your response.
+When a task involves running commands, you MUST include the command in your response.
 """
 
 EXECUTION_PROMPT = """
-You are executing the task:
+Execute this task:
 {step}
 
-Note:
-- **It you that to do the task, not the user**
-- **You must use the language provided by user's message to execute the task**
-- You must use message_notify_user tool to notify users within one sentence:
-    - What tools you are going to use and what you are going to do with them
-    - What you have done by tools
-    - What you are going to do or have done within one sentence
-- If you need to ask user for input or take control of the browser, you must use message_ask_user tool to ask user for input
-- Don't tell how to do the task, determine by yourself.
-- Deliver the final result to user not the todo list, advice or plan
+IMPORTANT RULES:
+- YOU must do the task yourself, not tell the user how to do it
+- Use the same language as the user's message for all text output
+- If the task involves creating/writing a file, include the content in your response
+- If the task involves running a command, include the command in your response
+- Working directory is /home/ubuntu. Always use absolute paths.
 
-Return format requirements:
-- Must return JSON format that complies with the following TypeScript interface
-- Must include all required fields as specified
-
-
-TypeScript Interface Definition:
-```typescript
-interface Response {{
-  /** Whether the task is executed successfully **/
-  success: boolean;
-  /** Array of file paths in sandbox for generated files to be delivered to user **/
-  attachments: string[];
-
-  /** Task result, empty if no result to deliver **/
-  result: string;
-}}
-```
-
-EXAMPLE JSON OUTPUT:
+Return JSON format:
 {{
     "success": true,
-    "result": "We have finished the task",
-    "attachments": [
-        "/home/ubuntu/file1.md",
-        "/home/ubuntu/file2.md"
+    "result": "Description of what was accomplished",
+    "attachments": ["/home/ubuntu/filename.ext"],
+    "file_operations": [
+        {{
+            "action": "write",
+            "path": "/home/ubuntu/filename.ext",
+            "content": "The actual file content to write"
+        }}
     ],
+    "shell_commands": [
+        {{
+            "command": "echo hello",
+            "exec_dir": "/home/ubuntu"
+        }}
+    ]
 }}
 
-Input:
-- message: the user's message, use this language for all text output
-- attachments: the user's attachments
-- task: the task to execute
+Notes on file_operations:
+- Include this array when you need to create or modify files
+- "action" can be "write" (create/overwrite) or "append"
+- "content" must contain the FULL text content for the file
 
-Output:
-- the step execution result in json format
+Notes on shell_commands:
+- Include this array when you need to run shell commands
+- Each command will be executed in the sandbox
+
+If the task doesn't involve files or commands, omit those fields:
+{{
+    "success": true,
+    "result": "Description of result",
+    "attachments": []
+}}
 
 User Message:
 {message}
@@ -74,34 +65,15 @@ Task:
 """
 
 SUMMARIZE_PROMPT = """
-You are finished the task, and you need to deliver the final result to user.
+The task has been completed. Summarize what was accomplished based on the conversation history.
 
-Note:
-- You should explain the final result to user in detail.
-- Write a markdown content to deliver the final result to user if necessary.
-- Use file tools to deliver the files generated above to user if necessary.
-- Deliver the files generated above to user if necessary.
+IMPORTANT: Write an ACTUAL summary of what was done, not a placeholder. Reference specific files created, content generated, or actions taken.
 
-Return format requirements:
-- Must return JSON format that complies with the following TypeScript interface
-- Must include all required fields as specified
-
-TypeScript Interface Definition:
-```typescript
-interface Response {
-  /** Response to user's message and thinking about the task, as detailed as possible */
-  message: string;
-  /** Array of file paths in sandbox for generated files to be delivered to user */
-  attachments: string[];
-}
-```
-
-EXAMPLE JSON OUTPUT:
+Return this JSON format:
 {{
-    "message": "Summary message",
-    "attachments": [
-        "/home/ubuntu/file1.md",
-        "/home/ubuntu/file2.md"
-    ]
+    "message": "Your actual summary of what was accomplished goes here",
+    "attachments": []
 }}
+
+Only include file paths in attachments if files were actually created during the task.
 """

@@ -76,6 +76,10 @@ class PlannerAgent(BaseAgent):
             if isinstance(event, MessageEvent):
                 logger.debug(f"Planner agent update plan: {event.message}")
                 parsed_response = await self.json_parser.parse(event.message)
+                if isinstance(parsed_response, list):
+                    parsed_response = {"steps": parsed_response}
+                if "steps" not in parsed_response:
+                    parsed_response = {"steps": [parsed_response] if parsed_response else []}
                 updated_plan = Plan.model_validate(parsed_response)
                 new_steps = [Step.model_validate(step) for step in updated_plan.steps]
                 
