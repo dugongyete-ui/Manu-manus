@@ -20,7 +20,7 @@ from app.infrastructure.external.cache import get_cache
 
 # Import all required dependencies for agent service
 from app.infrastructure.external.llm.openai_llm import OpenAILLM
-from app.infrastructure.external.sandbox.docker_sandbox import DockerSandbox
+from app.infrastructure.external.sandbox.local_sandbox import LocalSandbox
 from app.infrastructure.external.task.redis_task import RedisStreamTask
 from app.infrastructure.utils.llm_json_parser import LLMJsonParser
 from app.infrastructure.repositories.pg_agent_repository import PgAgentRepository
@@ -49,7 +49,7 @@ def get_agent_service() -> AgentService:
     llm = OpenAILLM()
     agent_repository = PgAgentRepository()
     session_repository = PgSessionRepository()
-    sandbox_cls = DockerSandbox
+    sandbox_cls = LocalSandbox
     task_cls = RedisStreamTask
     json_parser = LLMJsonParser()
     file_storage = get_local_file_storage()

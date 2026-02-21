@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class PlaywrightBrowser:
     """Playwright client that provides specific implementation of browser operations"""
     
-    def __init__(self, cdp_url: str):
+    def __init__(self, cdp_url: str = None):
         self.browser: Optional[Browser] = None
         self.page: Optional[Page] = None
         self.playwright = None
@@ -23,47 +23,45 @@ class PlaywrightBrowser:
         
     async def initialize(self):
         """Initialize and ensure resources are available"""
-        # Add retry logic
         max_retries = 5
-        retry_delay = 1  # Initial wait 1 second
+        retry_delay = 1
         for attempt in range(max_retries):
             try:
                 self.playwright = await async_playwright().start()
-                # Connect to existing Chrome instance
-                self.browser = await self.playwright.chromium.connect_over_cdp(self.cdp_url)
-                # Get all contexts
-                contexts = self.browser.contexts
-                if contexts and len(contexts[0].pages) == 1:
-                    # Check if it's the initial page (by URL)
-                    page = contexts[0].pages[0]
-                    page_url = await page.evaluate("window.location.href")
-                    if (
-                        page_url == "about:blank" or 
-                        page_url == "chrome://newtab/" or 
-                        page_url == "chrome://new-tab-page/" or 
-                        not page_url
-                    ):
-                        # Only use it when it's the initial page and only one tab
-                        self.page = page
+                if self.cdp_url:
+                    self.browser = await self.playwright.chromium.connect_over_cdp(self.cdp_url)
+                    contexts = self.browser.contexts
+                    if contexts and len(contexts[0].pages) == 1:
+                        page = contexts[0].pages[0]
+                        page_url = await page.evaluate("window.location.href")
+                        if (
+                            page_url == "about:blank" or 
+                            page_url == "chrome://newtab/" or 
+                            page_url == "chrome://new-tab-page/" or 
+                            not page_url
+                        ):
+                            self.page = page
+                        else:
+                            self.page = await contexts[0].new_page()
                     else:
-                        # Not the initial page, create a new page
-                        self.page = await contexts[0].new_page()
+                        context = contexts[0] if contexts else await self.browser.new_context()
+                        self.page = await context.new_page()
                 else:
-                    # Create a new page in other cases
-                    context = contexts[0] if contexts else await self.browser.new_context()
+                    self.browser = await self.playwright.chromium.launch(
+                        headless=True,
+                        args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+                    )
+                    context = await self.browser.new_context(
+                        viewport={'width': 1280, 'height': 720}
+                    )
                     self.page = await context.new_page()
                 return True
             except Exception as e:
-                # Clean up failed resources
                 await self.cleanup()
-                
-                # Return error if maximum retry count is reached
                 if attempt == max_retries - 1:
                     logger.error(f"Initialization failed (retried {max_retries} times): {e}")
                     return False
-                
-                # Otherwise increase waiting time (exponential backoff strategy)
-                retry_delay = min(retry_delay * 2, 10)  # Maximum wait 10 seconds
+                retry_delay = min(retry_delay * 2, 10)
                 logger.warning(f"Initialization failed, will retry in {retry_delay} seconds: {e}")
                 await asyncio.sleep(retry_delay)
 
