@@ -10,10 +10,10 @@ packages = ["postgresql", "redis"]
 [userenv]
 
 [userenv.shared]
-API_BASE = "https://api.openai.com/v1"
-MODEL_NAME = "gpt-oss-120b"
+API_BASE = "https://api-dzeck--az405scqqg.replit.app/v1"
+MODEL_NAME = "claude40opus"
 TEMPERATURE = "0.7"
-MAX_TOKENS = "2000"
+MAX_TOKENS = "4096"
 REDIS_HOST = "localhost"
 REDIS_PORT = "6379"
 REDIS_DB = "0"
@@ -29,6 +29,7 @@ SANDBOX_TTL_MINUTES = "30"
 SANDBOX_NAME_PREFIX = "sandbox"
 BACKEND_URL = "http://localhost:8000"
 JWT_SECRET_KEY = "_d2pULUsVcgiKDNlx-2bQ-99NTX6K1eDLNAmyME2S_E4VTo87vqdz7OtRXufCKCF"
+LLM_PROVIDER = "Perplexity"
 
 [workflows]
 runButton = "Project"

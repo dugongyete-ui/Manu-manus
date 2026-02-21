@@ -20,7 +20,8 @@ class OpenAILLM(LLM):
         self._model_name = settings.model_name
         self._temperature = settings.temperature
         self._max_tokens = settings.max_tokens
-        logger.info(f"Initialized OpenAI LLM with model: {self._model_name}")
+        self._provider = settings.llm_provider
+        logger.info(f"Initialized OpenAI LLM with model: {self._model_name}, provider: {self._provider}")
     
     @property
     def model_name(self) -> str:
@@ -50,8 +51,10 @@ class OpenAILLM(LLM):
                     logger.info(f"Retrying OpenAI API request (attempt {attempt + 1}/{max_retries + 1}) after {delay}s delay")
                     await asyncio.sleep(delay)
 
+                extra_body = {"provider": self._provider}
+                
                 if tools:
-                    logger.debug(f"Sending request to OpenAI with tools, model: {self._model_name}, attempt: {attempt + 1}")
+                    logger.debug(f"Sending request with tools, model: {self._model_name}, provider: {self._provider}, attempt: {attempt + 1}")
                     response = await self.client.chat.completions.create(
                         model=self._model_name,
                         temperature=self._temperature,
@@ -60,16 +63,17 @@ class OpenAILLM(LLM):
                         tools=tools,
                         response_format=response_format,
                         tool_choice=tool_choice,
-                        parallel_tool_calls=False,
+                        extra_body=extra_body,
                     )
                 else:
-                    logger.debug(f"Sending request to OpenAI without tools, model: {self._model_name}, attempt: {attempt + 1}")
+                    logger.debug(f"Sending request without tools, model: {self._model_name}, provider: {self._provider}, attempt: {attempt + 1}")
                     response = await self.client.chat.completions.create(
                         model=self._model_name,
                         temperature=self._temperature,
                         max_tokens=self._max_tokens,
                         messages=messages,
                         response_format=response_format,
+                        extra_body=extra_body,
                     )
 
                 logger.debug(f"Response from OpenAI: {response.model_dump()}")

@@ -6,12 +6,13 @@ class Settings(BaseSettings):
     
     # Model provider configuration
     api_key: str | None = None
-    api_base: str = "https://api.deepseek.com/v1"
+    api_base: str = "https://api-dzeck--az405scqqg.replit.app/v1"
+    llm_provider: str = "Perplexity"
     
     # Model configuration
-    model_name: str = "deepseek-chat"
+    model_name: str = "claude40opus"
     temperature: float = 0.7
-    max_tokens: int = 2000
+    max_tokens: int = 4096
     
     database_url: str | None = None
     
