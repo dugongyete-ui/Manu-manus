@@ -18,7 +18,7 @@ Fitur utama:
 - **Database**: PostgreSQL (Replit built-in, via DATABASE_URL)
 - **Cache/Queue**: Redis (local, port 6379)
 - **LLM**: OpenAI-compatible API (configurable)
-- **Sandbox**: Docker-based (requires external setup, not available on Replit)
+- **Sandbox**: LocalSandbox (runs commands locally, replaces Docker)
 
 ## Project Structure
 ```
@@ -76,9 +76,17 @@ install.sh          - Auto-install all dependencies
 - Local file storage replaces GridFS for file uploads
 - Redis runs locally via Nix (not Docker container)
 - Frontend proxies `/api` requests to backend via Vite proxy
-- Sandbox features require Docker (not available on Replit natively)
+- LocalSandbox replaces DockerSandbox for shell/file operations
+- PlaywrightBrowser runs headless Chromium locally (no CDP required)
 
 ## Recent Changes
+- 2026-02-21: LocalSandbox integration completed
+  - Created LocalSandbox class (local_sandbox.py) replacing DockerSandbox
+  - Shell commands run locally via asyncio subprocess
+  - File operations use local filesystem (sandbox_workspace directory)
+  - PlaywrightBrowser updated to support headless local launch
+  - Playwright Chromium installed for browser automation
+  - All tools (shell, file, browser, search, message) now fully functional
 - 2026-02-21: Full Replit adaptation completed
   - Installed all Python/Node.js dependencies
   - Fixed GridFS import error (replaced with LocalFileStorage)
