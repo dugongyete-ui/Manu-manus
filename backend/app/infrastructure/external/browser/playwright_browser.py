@@ -47,10 +47,15 @@ class PlaywrightBrowser:
                         context = contexts[0] if contexts else await self.browser.new_context()
                         self.page = await context.new_page()
                 else:
-                    self.browser = await self.playwright.chromium.launch(
-                        headless=True,
-                        args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-                    )
+                    import shutil
+                    chromium_path = shutil.which('chromium') or shutil.which('chromium-browser')
+                    launch_kwargs = {
+                        'headless': True,
+                        'args': ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+                    }
+                    if chromium_path:
+                        launch_kwargs['executable_path'] = chromium_path
+                    self.browser = await self.playwright.chromium.launch(**launch_kwargs)
                     context = await self.browser.new_context(
                         viewport={'width': 1280, 'height': 720}
                     )

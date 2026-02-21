@@ -5,7 +5,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
-packages = ["postgresql", "redis"]
+packages = ["postgresql", "redis", "nspr", "nss", "xorg.libXcomposite", "xorg.libXrandr", "xorg.libXdamage", "at-spi2-atk", "cups", "libdrm", "mesa", "alsa-lib", "pango", "cairo", "glib", "chromium"]
 
 [userenv]
 

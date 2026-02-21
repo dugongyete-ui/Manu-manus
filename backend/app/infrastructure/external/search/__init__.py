@@ -13,6 +13,7 @@ def get_search_engine() -> Optional[SearchEngine]:
     from app.infrastructure.external.search.google_search import GoogleSearchEngine
     from app.infrastructure.external.search.baidu_search import BaiduSearchEngine
     from app.infrastructure.external.search.bing_search import BingSearchEngine
+    from app.infrastructure.external.search.duckduckgo_search import DuckDuckGoSearchEngine
     
     settings = get_settings()
     if settings.search_provider == "google":
@@ -28,9 +29,13 @@ def get_search_engine() -> Optional[SearchEngine]:
         logger.info("Initializing Baidu Search Engine")
         return BaiduSearchEngine()
     elif settings.search_provider == "bing":
-        logger.info("Initializing Bing Search Engine")
-        return BingSearchEngine()
+        logger.info("Using DuckDuckGo Search Engine (Bing blocked by CAPTCHA)")
+        return DuckDuckGoSearchEngine()
+    elif settings.search_provider == "duckduckgo":
+        logger.info("Initializing DuckDuckGo Search Engine")
+        return DuckDuckGoSearchEngine()
     else:
-        logger.warning(f"Unknown search provider: {settings.search_provider}")
+        logger.warning(f"Unknown search provider: {settings.search_provider}, falling back to DuckDuckGo")
+        return DuckDuckGoSearchEngine()
     
-    return None 
+    return None
