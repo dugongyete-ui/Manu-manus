@@ -69,8 +69,8 @@ install.sh          - Auto-install all dependencies
 - `REDIS_HOST` / `REDIS_PORT` / `REDIS_DB` - Redis config
 - `JWT_SECRET_KEY` - JWT secret (secret)
 - `DATABASE_URL` - PostgreSQL connection (auto-configured by Replit)
-- `SEARCH_PROVIDER` - Search engine (bing)
-- `GOOGLE_SEARCH_API_KEY` / `GOOGLE_SEARCH_ENGINE_ID` - Google search (secrets)
+- `SEARCH_PROVIDER` - Search engine (duckduckgo)
+- `GOOGLE_SEARCH_API_KEY` / `GOOGLE_SEARCH_ENGINE_ID` - Google search (secrets, optional)
 
 ## Key Technical Decisions
 - PostgreSQL replaces MongoDB (original used MongoDB + GridFS)
@@ -81,6 +81,19 @@ install.sh          - Auto-install all dependencies
 - PlaywrightBrowser runs headless Chromium locally (no CDP required)
 
 ## Recent Changes
+- 2026-02-21: Fixed JSON parsing resilience in execution agent
+  - execution.py: Added try/catch around json_parser.parse() calls
+  - Handles cases where LLM returns plain text instead of JSON
+  - Handles list responses by wrapping in dict
+  - Fixed variable-width lookbehind regex in llm_json_parser.py
+  - All agent steps now complete gracefully even with non-JSON responses
+- 2026-02-21: Replaced Bing search with DuckDuckGo search engine
+  - Created duckduckgo_search.py using duckduckgo-search library
+  - No API key required, resolves CAPTCHA blocking issues
+  - Updated search factory to use DuckDuckGo provider
+- 2026-02-21: Installed system Chromium for browser tool
+  - Installed nspr, nss, mesa and other system dependencies
+  - Updated PlaywrightBrowser to use system chromium binary
 - 2026-02-21: Switched LLM provider to api-dzeck (Perplexity/claude40opus)
   - Updated API_BASE to https://api-dzeck--az405scqqg.replit.app/v1
   - Updated MODEL_NAME to claude40opus

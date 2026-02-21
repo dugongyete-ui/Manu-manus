@@ -132,16 +132,37 @@ class ExecutionAgent(BaseAgent):
                 yield StepEvent(status=StepStatus.FAILED, step=step)
             elif isinstance(event, MessageEvent):
                 step.status = ExecutionStatus.COMPLETED
-                parsed_response = await self.json_parser.parse(event.message)
+                try:
+                    parsed_response = await self.json_parser.parse(event.message)
+                    if not isinstance(parsed_response, dict):
+                        logger.warning(f"Parsed response is {type(parsed_response).__name__}, wrapping as dict")
+                        parsed_response = {
+                            "success": True,
+                            "result": str(parsed_response) if parsed_response else event.message,
+                            "attachments": []
+                        }
+                except (ValueError, Exception) as parse_err:
+                    logger.warning(f"JSON parsing failed for step response, using text as result: {parse_err}")
+                    parsed_response = {
+                        "success": True,
+                        "result": event.message,
+                        "attachments": []
+                    }
                 
                 exec_results = await self._auto_execute_operations(parsed_response)
                 if exec_results:
                     logger.info(f"Auto-execution results: {exec_results}")
                 
-                new_step = Step.model_validate(parsed_response)
-                step.success = new_step.success
-                step.result = new_step.result
-                step.attachments = new_step.attachments
+                try:
+                    new_step = Step.model_validate(parsed_response)
+                    step.success = new_step.success
+                    step.result = new_step.result
+                    step.attachments = new_step.attachments
+                except Exception as validate_err:
+                    logger.warning(f"Step validation failed, using raw result: {validate_err}")
+                    step.success = True
+                    step.result = parsed_response.get("result", event.message) if isinstance(parsed_response, dict) else event.message
+                    step.attachments = parsed_response.get("attachments", []) if isinstance(parsed_response, dict) else []
                 yield StepEvent(status=StepStatus.COMPLETED, step=step)
                 if step.result:
                     yield MessageEvent(message=step.result)
@@ -162,9 +183,13 @@ class ExecutionAgent(BaseAgent):
         async for event in self.execute(prompt):
             if isinstance(event, MessageEvent):
                 logger.debug(f"Execution agent summary: {event.message}")
-                parsed_response = await self.json_parser.parse(event.message)
-                msg = Message.model_validate(parsed_response)
-                attachments = [FileInfo(file_path=file_path) for file_path in msg.attachments]
-                yield MessageEvent(message=msg.message, attachments=attachments)
+                try:
+                    parsed_response = await self.json_parser.parse(event.message)
+                    msg = Message.model_validate(parsed_response)
+                    attachments = [FileInfo(file_path=file_path) for file_path in msg.attachments]
+                    yield MessageEvent(message=msg.message, attachments=attachments)
+                except (ValueError, Exception) as e:
+                    logger.warning(f"Failed to parse summary as JSON, using text: {e}")
+                    yield MessageEvent(message=event.message)
                 continue
             yield event

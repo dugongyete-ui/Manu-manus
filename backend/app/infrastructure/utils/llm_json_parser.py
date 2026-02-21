@@ -233,7 +233,7 @@ JSON:"""
             return f'"{escaped_content}"'
         
         # Pattern to match string values in arrays: "content with potential " quotes"
-        # Look for quotes that are preceded by [ or , (with optional whitespace) and followed by , or ] (with optional whitespace)
-        text = re.sub(r'(?<=[\[,]\s*)(".*?)"(?=\s*[,\]])', fix_unescaped_quotes_in_array_values, text)
+        # Look for quotes that are preceded by [ or , and followed by , or ]
+        text = re.sub(r'(?<=[\[,])(\s*".*?)"(?=\s*[,\]])', fix_unescaped_quotes_in_array_values, text)
         
         return text
