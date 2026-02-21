@@ -39,7 +39,7 @@ class ExecutionAgent(BaseAgent):
     name: str = "execution"
     system_prompt: str = SYSTEM_PROMPT + EXECUTION_SYSTEM_PROMPT
     format: str = "json_object"
-    tool_choice: Optional[str] = "none"
+    tool_choice: Optional[str] = None
 
     def __init__(
         self,
