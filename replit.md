@@ -60,9 +60,10 @@ install.sh          - Auto-install all dependencies
 - Password: admin123
 
 ## Environment Variables (Configured)
-- `API_BASE` - LLM API base URL
+- `API_BASE` - LLM API base URL (https://api-dzeck--az405scqqg.replit.app/v1)
 - `API_KEY` - LLM API key (secret)
-- `MODEL_NAME` - LLM model name
+- `MODEL_NAME` - LLM model name (claude40opus)
+- `LLM_PROVIDER` - LLM provider name sent in extra_body (Perplexity)
 - `AUTH_PROVIDER` - Authentication mode (local)
 - `LOCAL_AUTH_EMAIL` / `LOCAL_AUTH_PASSWORD` - Local admin credentials
 - `REDIS_HOST` / `REDIS_PORT` / `REDIS_DB` - Redis config
@@ -80,6 +81,12 @@ install.sh          - Auto-install all dependencies
 - PlaywrightBrowser runs headless Chromium locally (no CDP required)
 
 ## Recent Changes
+- 2026-02-21: Switched LLM provider to api-dzeck (Perplexity/claude40opus)
+  - Updated API_BASE to https://api-dzeck--az405scqqg.replit.app/v1
+  - Updated MODEL_NAME to claude40opus
+  - Added LLM_PROVIDER config (sent via extra_body in OpenAI SDK)
+  - Increased MAX_TOKENS to 4096
+  - API tested and confirmed working
 - 2026-02-21: LocalSandbox integration completed
   - Created LocalSandbox class (local_sandbox.py) replacing DockerSandbox
   - Shell commands run locally via asyncio subprocess
